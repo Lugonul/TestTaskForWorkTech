@@ -30,12 +30,13 @@ public class GenreService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<GenreDto> read(Long id) {
+    public GenreDto read(Long id) {
 
-        Optional<GenreDto> maybeGenre = genreRepository.findById(id)
-                .map(genreMapper::toDto);
+        GenreDto genre = genreRepository.findById(id)
+                .map(genreMapper::toDto)
+                .orElseThrow(EntityNotFoundException::new);
 
-        return maybeGenre;
+        return genre;
     }
 
     @Transactional(readOnly = true)

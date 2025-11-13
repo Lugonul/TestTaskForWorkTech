@@ -33,7 +33,7 @@ public class AuthorController {
 
     @GetMapping("/{id}")
     public AuthorDto getAuthorById(@PathVariable("id") Long id) {
-        return authorService.read(id).orElseThrow(EntityNotFoundException::new);
+        return authorService.read(id);
     }
 
     @PostMapping

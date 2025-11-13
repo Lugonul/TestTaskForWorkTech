@@ -30,12 +30,13 @@ public class AuthorService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<AuthorDto> read(Long id) {
+    public AuthorDto read(Long id) {
 
-        Optional<AuthorDto> maybeAuthor = authorRepository.findById(id)
-                .map(authorMapper::toDto);
+        AuthorDto author = authorRepository.findById(id)
+                .map(authorMapper::toDto)
+                .orElseThrow(EntityNotFoundException::new);
 
-        return maybeAuthor;
+        return author;
     }
 
     @Transactional(readOnly = true)

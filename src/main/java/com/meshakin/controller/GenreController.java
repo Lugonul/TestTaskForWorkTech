@@ -33,7 +33,7 @@ public class GenreController {
 
     @GetMapping("/{id}")
     public GenreDto getGenreById(@PathVariable("id") Long id) {
-        return genreService.read(id).orElseThrow(EntityNotFoundException::new);
+        return genreService.read(id);
     }
 
     @PostMapping

@@ -71,7 +71,7 @@ public class BookController {
     public BookDto getBookById(@PathVariable("id") Long id) {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get book with id: {}", username, id);
-        BookDto bookDto = bookService.read(id).orElseThrow(EntityNotFoundException::new);
+        BookDto bookDto = bookService.read(id);
         log.info("User '{}' got book with id: {}", username, id);
         return bookDto;
     }
