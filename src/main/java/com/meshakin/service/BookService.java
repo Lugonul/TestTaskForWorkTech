@@ -26,11 +26,6 @@ public class BookService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
 
-    private final AuthorService authorService;
-    private final AuthorMapper authorMapper;
-    private final GenreService genreService;
-    private final GenreMapper genreMapper;
-
     @Transactional
     public BookDto create(BookDto BookDto) {
         Book book = bookMapper.toEntity(BookDto);

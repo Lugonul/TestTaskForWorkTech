@@ -66,6 +66,9 @@ public class AuthorService {
     @Transactional
     public AuthorDto findByName(String name) {
        Author author = authorRepository.findByName(name);
+       if (author == null) {
+           throw new EntityNotFoundException();
+       }
        return authorMapper.toDto(author);
     }
 
