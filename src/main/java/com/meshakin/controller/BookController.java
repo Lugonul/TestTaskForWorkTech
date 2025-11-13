@@ -3,6 +3,7 @@ package com.meshakin.controller;
 import com.meshakin.dto.BookDto;
 import com.meshakin.service.BookService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -76,25 +77,25 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookDto> saveBook(@RequestBody BookDto bookDtoWithoutId) {
+    public ResponseEntity<BookDto> saveBook(@Valid @RequestBody BookDto bookDto) {
         String username = getCurrentUsername();
-        log.info("User '{}' is trying to create book : {}", username, bookDtoWithoutId.name());
-        BookDto bookDtoWithId = bookService.create(bookDtoWithoutId);
+        log.info("User '{}' is trying to create book : {}", username, bookDto.name());
+        BookDto book = bookService.create(bookDto);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(bookDtoWithId.id())
+                .buildAndExpand(book.id())
                 .toUri();
-        log.info("User '{}' created book with id: {}", username, bookDtoWithId.id());
-        return ResponseEntity.created(location).body(bookDtoWithId);
+        log.info("User '{}' created book with id: {}", username, book.id());
+        return ResponseEntity.created(location).body(book);
     }
 
     @PutMapping("/{id}")
-    public BookDto updateBook(@RequestBody BookDto bookDtoWithId) {
+    public BookDto updateBook(@Valid @RequestBody BookDto bookDto) {
         String username = getCurrentUsername();
-        log.info("User '{}' is trying to update book : {}", username, bookDtoWithId.name());
-        BookDto updatedDto = bookService.update(bookDtoWithId);
-        log.info("User '{}' updated book with id: {}", username, bookDtoWithId.id());
+        log.info("User '{}' is trying to update book : {}", username, bookDto.name());
+        BookDto updatedDto = bookService.update(bookDto);
+        log.info("User '{}' updated book with id: {}", username, bookDto.id());
         return updatedDto;
 
     }

@@ -26,7 +26,8 @@ logging:
   file:
     name: logs/application.log
   level:
-    com.meshakin.controller: INFO
-    com.meshakin: ERROR
+    com.meshakin: INFO
+    org.springframework: WARN
+
 
     root: ERROR
