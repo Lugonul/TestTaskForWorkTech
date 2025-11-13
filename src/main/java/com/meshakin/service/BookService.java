@@ -26,11 +26,6 @@ public class BookService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
 
-    private final AuthorService authorService;
-    private final AuthorMapper authorMapper;
-    private final GenreService genreService;
-    private final GenreMapper genreMapper;
-
     @Transactional
     public BookDto create(BookDto BookDto) {
         Book book = bookMapper.toEntity(BookDto);
@@ -39,12 +34,13 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<BookDto> read(Long id) {
+    public BookDto read(Long id) {
 
-        Optional<BookDto> maybeBook = bookRepository.findById(id)
-                .map(bookMapper::toDto);
+        BookDto book = bookRepository.findById(id)
+                .map(bookMapper::toDto)
+                .orElseThrow(EntityNotFoundException::new);
 
-        return maybeBook;
+        return book;
     }
 
     @Transactional(readOnly = true)

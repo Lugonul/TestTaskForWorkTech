@@ -3,8 +3,12 @@ package com.meshakin.controller;
 import com.meshakin.dto.BookDto;
 import com.meshakin.service.BookService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,55 +26,90 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("books")
+@Slf4j
 public class BookController {
 
     private final BookService bookService;
 
     @GetMapping
     public List<BookDto> getAllBooks() {
-        return bookService.readAll();
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to get all books", username);
+        List<BookDto> books = bookService.readAll();
+        log.info("User '{}' got all books", username);
+        return books;
     }
 
     @GetMapping("/author")
     public List<BookDto> getBooksByAuthorName(@RequestParam String authorName) {
-        return bookService.findByAuthorName(authorName);
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to get books with author: {}", username, authorName);
+        List<BookDto> books = bookService.findByAuthorName(authorName);
+        log.info("User '{}' got books with author: {}", username, authorName);
+        return books;
     }
 
     @GetMapping("/genre")
     public List<BookDto> getBooksByGenreName(@RequestParam String genreName) {
-        return bookService.findByGenreName(genreName);
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to get books with genre: {}", username, genreName);
+        List<BookDto> books = bookService.findByGenreName(genreName);
+        log.info("User '{}' got books with genre: {}", username, genreName);
+        return books;
     }
 
     @GetMapping("/name")
     public List<BookDto> getBooksByName(@RequestParam String name) {
-        return bookService.findByName(name);
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to get books with title: {}", username, name);
+        List<BookDto> books = bookService.findByName(name);
+        log.info("User '{}' got books with title: {}", username, name);
+        return books;
     }
 
     @GetMapping("/{id}")
     public BookDto getBookById(@PathVariable("id") Long id) {
-        return bookService.read(id).orElseThrow(EntityNotFoundException::new);
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to get book with id: {}", username, id);
+        BookDto bookDto = bookService.read(id);
+        log.info("User '{}' got book with id: {}", username, id);
+        return bookDto;
     }
 
     @PostMapping
-    public ResponseEntity<BookDto> saveBook(@RequestBody BookDto bookDtoWithoutId) {
-        BookDto bookDtoWithId = bookService.create(bookDtoWithoutId);
+    public ResponseEntity<BookDto> saveBook(@Valid @RequestBody BookDto bookDto) {
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to create book : {}", username, bookDto.name());
+        BookDto book = bookService.create(bookDto);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(bookDtoWithId.id())
+                .buildAndExpand(book.id())
                 .toUri();
-        return ResponseEntity.created(location).body(bookDtoWithId);
+        log.info("User '{}' created book with id: {}", username, book.id());
+        return ResponseEntity.created(location).body(book);
     }
 
     @PutMapping("/{id}")
-    public BookDto updateBook(@RequestBody BookDto bookDtoWithId) {
-        BookDto updatedDto = bookService.update(bookDtoWithId);
+    public BookDto updateBook(@Valid @RequestBody BookDto bookDto) {
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to update book : {}", username, bookDto.name());
+        BookDto updatedDto = bookService.update(bookDto);
+        log.info("User '{}' updated book with id: {}", username, bookDto.id());
         return updatedDto;
 
     }
 
     @DeleteMapping("/{id}")
     public void deleteBook(@PathVariable("id") Long id){
+        String username = getCurrentUsername();
+        log.info("User '{}' is trying to delete with id: {}", username, id);
         bookService.delete(id);
+        log.info("User '{}' deleted book with id: {}", username, id);
+    }
+
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }
