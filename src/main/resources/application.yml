@@ -21,3 +21,12 @@ springdoc:
     path: /swagger-ui.html
   packages-to-scan: com.meshakin.controller
   show-actuator: false
+
+logging:
+  file:
+    name: logs/application.log
+  level:
+    com.meshakin.controller: INFO
+    com.meshakin: ERROR
+
+    root: ERROR
