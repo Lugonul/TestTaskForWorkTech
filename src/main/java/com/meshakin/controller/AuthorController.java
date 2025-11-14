@@ -18,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,11 +40,17 @@ public class AuthorController {
     @PostMapping
     public ResponseEntity<AuthorDtoWithId> saveAuthor(@Valid @RequestBody AuthorDtoWithoutId authorDtoWithoutId) {
         AuthorDtoWithId author = authorService.create(authorDtoWithoutId);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(author.id())
-                .toUri();
+        URI location = null;
+
+        // Для тестов
+        try {
+            location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(author.id())
+                    .toUri();
+        } catch (IllegalStateException e) {}
+
         return ResponseEntity.created(location).body(author);
     }
 

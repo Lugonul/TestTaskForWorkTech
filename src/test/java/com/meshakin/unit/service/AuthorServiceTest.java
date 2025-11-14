@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthorServiceTest {
@@ -53,6 +54,7 @@ public class AuthorServiceTest {
         AuthorDtoWithId result = authorService.create(authorDtoWithoutId);
 
         assertEquals(savedAuthorDtoWithId, result);
+        verify(authorRepository).save(authorForSave);
 
     }
 
@@ -73,6 +75,7 @@ public class AuthorServiceTest {
         AuthorDtoWithId result = authorService.read(id);
 
         assertEquals(authorDtoWithId, result);
+        verify(authorRepository).findById(id);
     }
 
     @Test
@@ -81,6 +84,7 @@ public class AuthorServiceTest {
         when(authorRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> authorService.read(id));
+        verify(authorRepository).findById(id);
 
     }
 
@@ -111,6 +115,7 @@ public class AuthorServiceTest {
 
         List <AuthorDtoWithId> result = authorService.readAll();
         assertEquals(authorDtoWithIds, result);
+        verify(authorRepository).findAll();
     }
 
     @Test
@@ -122,6 +127,7 @@ public class AuthorServiceTest {
         List <AuthorDtoWithId> result = authorService.readAll();
 
         assertEquals(authorDtoWithIds, result);
+        verify(authorRepository).findAll();
     }
 
     @Test
@@ -145,7 +151,10 @@ public class AuthorServiceTest {
         when(authorMapper.toDto(authorForUpdate)).thenReturn(authorDtoWithIdForUpdate);
 
         AuthorDtoWithId result = authorService.update(authorDtoWithIdForUpdate);
+
         assertEquals(authorDtoWithIdForUpdate, result);
+        verify(authorRepository).findById(id);
+        verify(authorRepository).flush();
     }
 
     @Test
@@ -159,6 +168,8 @@ public class AuthorServiceTest {
 
 
         assertThrows(EntityNotFoundException.class, () -> authorService.update(authorDtoWithIdForUpdate));
+        verify(authorRepository).findById(id);
+        verify(authorRepository, never()).flush();
     }
 
     @Test
@@ -170,7 +181,11 @@ public class AuthorServiceTest {
         author.setName(name);
 
         when(authorRepository.findById(id)).thenReturn(Optional.of(author));
+
         authorService.delete(author.getId());
+
+        verify(authorRepository).findById(id);
+        verify(authorRepository).delete(author);
     }
 
     @Test
@@ -182,7 +197,9 @@ public class AuthorServiceTest {
         author.setName(name);
 
         when(authorRepository.findById(id)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> authorService.delete(author.getId()));
+        verify(authorRepository).findById(id);
     }
 
     @Test
@@ -200,7 +217,9 @@ public class AuthorServiceTest {
         when(authorMapper.toDto(author)).thenReturn(foundAuthorDtoWithId);
 
         AuthorDtoWithId result = authorService.findByName(name);
+
         assertEquals(foundAuthorDtoWithId, result);
+        verify(authorRepository).findByName(name);
     }
 
 }

@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GenreServiceTest {
@@ -54,6 +54,7 @@ public class GenreServiceTest {
         GenreDtoWithId result = genreService.create(genreDtoWithoutId);
 
         assertEquals(savedGenreDtoWithId, result);
+        verify(genreRepository).save(genreForSave);
 
     }
 
@@ -74,6 +75,7 @@ public class GenreServiceTest {
         GenreDtoWithId result = genreService.read(id);
 
         assertEquals(genreDtoWithId, result);
+        verify(genreRepository).findById(id);
     }
 
     @Test
@@ -82,7 +84,7 @@ public class GenreServiceTest {
         when(genreRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> genreService.read(id));
-
+        verify(genreRepository).findById(id);
     }
 
     @Test
@@ -111,7 +113,9 @@ public class GenreServiceTest {
         when(genreMapper.toDto(genre2)).thenReturn(genreDtoWithId2);
 
         List <GenreDtoWithId> result = genreService.readAll();
+
         assertEquals(genreDtoWithIds, result);
+        verify(genreRepository).findAll();
     }
 
     @Test
@@ -123,6 +127,7 @@ public class GenreServiceTest {
         List <GenreDtoWithId> result = genreService.readAll();
 
         assertEquals(genreDtoWithIds, result);
+        verify(genreRepository).findAll();
     }
 
     @Test
@@ -146,7 +151,10 @@ public class GenreServiceTest {
         when(genreMapper.toDto(genreForUpdate)).thenReturn(genreDtoWithIdForUpdate);
 
         GenreDtoWithId result = genreService.update(genreDtoWithIdForUpdate);
+
         assertEquals(genreDtoWithIdForUpdate, result);
+        verify(genreRepository).findById(id);
+        verify(genreRepository).flush();
     }
 
     @Test
@@ -158,8 +166,9 @@ public class GenreServiceTest {
 
         when(genreRepository.findById(id)).thenReturn(Optional.empty());
 
-
         assertThrows(EntityNotFoundException.class, () -> genreService.update(genreDtoWithIdForUpdate));
+        verify(genreRepository).findById(id);
+        verify(genreRepository, never()).flush();
     }
 
     @Test
@@ -171,7 +180,10 @@ public class GenreServiceTest {
         genre.setName(name);
 
         when(genreRepository.findById(id)).thenReturn(Optional.of(genre));
+
         genreService.delete(genre.getId());
+        verify(genreRepository).findById(id);
+        verify(genreRepository).delete(genre);
     }
 
     @Test
@@ -183,7 +195,10 @@ public class GenreServiceTest {
         genre.setName(name);
 
         when(genreRepository.findById(id)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> genreService.delete(genre.getId()));
+        verify(genreRepository).findById(id);
+        verify(genreRepository, never()).delete(genre);
     }
 
     @Test
@@ -201,7 +216,9 @@ public class GenreServiceTest {
         when(genreMapper.toDto(genre)).thenReturn(foundGenreDtoWithId);
 
         GenreDtoWithId result = genreService.findByName(name);
+
         assertEquals(foundGenreDtoWithId, result);
+        verify(genreRepository).findByName(name);
     }
 
 }

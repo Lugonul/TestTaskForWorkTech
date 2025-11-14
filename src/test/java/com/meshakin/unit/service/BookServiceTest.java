@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookServiceTest {
@@ -38,10 +38,12 @@ public class BookServiceTest {
     void createBook_shouldReturnBook() {
         Long id = 1L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -69,6 +71,7 @@ public class BookServiceTest {
         BookDtoWithId result = bookService.create(bookDtoWithoutId);
 
         assertEquals(savedBookDtoWithId, result);
+        verify(bookRepository).save(bookForSave);
 
     }
 
@@ -98,6 +101,7 @@ public class BookServiceTest {
         BookDtoWithId result = bookService.read(id);
 
         assertEquals(bookDtoWithId, result);
+        verify(bookRepository).findById(id);
     }
 
     @Test
@@ -106,27 +110,29 @@ public class BookServiceTest {
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> bookService.read(id));
+        verify(bookRepository).findById(id);
 
     }
 
     @Test
     void readAllBooks_whenBookExists_thenReturnBooks() {
         Long id = 1L;
-        String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
         genre.setName(genreString);
 
         List<Book> books = new ArrayList<>();
+
         Book book1 = new Book();
         book1.setId(1L);
         book1.setName("test1");
-
 
         Book book2 = new Book();
         book2.setId(2L);
@@ -147,7 +153,9 @@ public class BookServiceTest {
         when(bookMapper.toDto(book2)).thenReturn(bookDtoWithId2);
 
         List<BookDtoWithId> result = bookService.readAll();
+
         assertEquals(bookDtoWithIds, result);
+        verify(bookRepository).findAll();
     }
 
     @Test
@@ -159,6 +167,7 @@ public class BookServiceTest {
         List<BookDtoWithId> result = bookService.readAll();
 
         assertEquals(bookDtoWithIds, result);
+        verify(bookRepository).findAll();
     }
 
     @Test
@@ -166,10 +175,12 @@ public class BookServiceTest {
         Long id = 1L;
         String name = "test";
         String newName = "newName";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -184,6 +195,8 @@ public class BookServiceTest {
         Book bookForUpdate = new Book();
         bookForUpdate.setId(id);
         bookForUpdate.setName(newName);
+        bookForUpdate.setAuthor(author);
+        bookForUpdate.setGenre(genre);
 
         BookDtoWithId bookDtoWithIdForUpdate = new BookDtoWithId(id, newName, authorString, genreString);
 
@@ -192,7 +205,9 @@ public class BookServiceTest {
         when(bookMapper.toDto(bookForUpdate)).thenReturn(bookDtoWithIdForUpdate);
 
         BookDtoWithId result = bookService.update(bookDtoWithIdForUpdate);
+
         assertEquals(bookDtoWithIdForUpdate, result);
+        verify(bookRepository).findById(id);
     }
 
     @Test
@@ -209,16 +224,20 @@ public class BookServiceTest {
 
 
         assertThrows(EntityNotFoundException.class, () -> bookService.update(bookDtoWithIdForUpdate));
+        verify(bookRepository).findById(id);
+        verify(bookRepository, never()).flush();
     }
 
     @Test
     void deleteBook_whenBookExists_shouldDeleteBook() {
         Long id = 1L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -231,17 +250,24 @@ public class BookServiceTest {
         book.setGenre(genre);
 
         when(bookRepository.findById(id)).thenReturn(Optional.of(book));
+
+
         bookService.delete(book.getId());
+
+        verify(bookRepository).findById(id);
+        verify(bookRepository).delete(any());
     }
 
     @Test
     void deleteBook_whenBookDoesNotExists_shouldThrowException() {
         Long id = 1L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -254,7 +280,10 @@ public class BookServiceTest {
         book.setGenre(genre);
 
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> bookService.delete(book.getId()));
+        verify(bookRepository).findById(id);
+        verify(bookRepository, never()).deleteById(id);
     }
 
     @Test
@@ -262,10 +291,12 @@ public class BookServiceTest {
         Long id = 1L;
         Long id2 = 2L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -300,18 +331,22 @@ public class BookServiceTest {
         when(bookMapper.toDto(secondBook)).thenReturn(secondBookDtoWithId);
 
         List<BookDtoWithId> result = bookService.findByName(name);
+
         assertEquals(booksDto, result);
+        verify(bookRepository).findByName(name);
     }
 
     @Test
     void findBookByBookName_whenBooksDoesNotExists_shouldReturnEmptyList() {
         List<Book> books = new ArrayList<>();
         List<BookDtoWithId> booksDto = new ArrayList<>();
+
         when(bookRepository.findByName("test")).thenReturn(books);
 
         List<BookDtoWithId> result = bookService.findByName("test");
 
         assertEquals(booksDto, result);
+        verify(bookRepository).findByName("test");
     }
 
     @Test
@@ -319,10 +354,12 @@ public class BookServiceTest {
         Long id = 1L;
         Long id2 = 2L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -355,9 +392,10 @@ public class BookServiceTest {
         when(bookMapper.toDto(firstBook)).thenReturn(firstBookDtoWithId);
         when(bookMapper.toDto(secondBook)).thenReturn(secondBookDtoWithId);
 
-
         List<BookDtoWithId> result = bookService.findByAuthorName(authorString);
+
         assertEquals(booksDto, result);
+        verify(bookRepository).findByAuthorName(authorString);
     }
 
     @Test
@@ -369,6 +407,7 @@ public class BookServiceTest {
         List<BookDtoWithId> result = bookService.findByAuthorName("test");
 
         assertEquals(booksDto, result);
+        verify(bookRepository).findByAuthorName("test");
     }
 
     @Test
@@ -376,10 +415,12 @@ public class BookServiceTest {
         Long id = 1L;
         Long id2 = 2L;
         String name = "test";
+
         String authorString = "test";
         Author author = new Author();
         author.setId(id);
         author.setName(authorString);
+
         String genreString = "test";
         Genre genre = new Genre();
         genre.setId(id);
@@ -414,7 +455,9 @@ public class BookServiceTest {
 
 
         List<BookDtoWithId> result = bookService.findByGenreName(genreString);
+
         assertEquals(booksDto, result);
+        verify(bookRepository).findByGenreName(genreString);
     }
 
     @Test
@@ -426,6 +469,7 @@ public class BookServiceTest {
         List<BookDtoWithId> result = bookService.findByGenreName("test");
 
         assertEquals(booksDto, result);
+        verify(bookRepository).findByGenreName("test");
     }
 
 }
