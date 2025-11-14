@@ -1,6 +1,7 @@
 package com.meshakin.unit.service;
 
-import com.meshakin.dto.AuthorDto;
+import com.meshakin.dto.id.AuthorDtoWithId;
+import com.meshakin.dto.without.id.AuthorDtoWithoutId;
 import com.meshakin.entity.Author;
 import com.meshakin.mapper.AuthorMapper;
 import com.meshakin.repository.AuthorRepository;
@@ -42,16 +43,16 @@ public class AuthorServiceTest {
         savedAuthor.setId(id);
         savedAuthor.setName(name);
 
-        AuthorDto authorDtoForSave = new AuthorDto(null, name);
-        AuthorDto savedAuthorDto = new AuthorDto(id, name);
+        AuthorDtoWithoutId authorDtoWithoutId = new AuthorDtoWithoutId( name);
+        AuthorDtoWithId savedAuthorDtoWithId = new AuthorDtoWithId(id, name);
 
         when(authorRepository.save(authorForSave)).thenReturn(authorForSave);
-        when(authorMapper.toEntity(authorDtoForSave)).thenReturn(authorForSave);
-        when(authorMapper.toDto(authorForSave)).thenReturn(savedAuthorDto);
+        when(authorMapper.toEntityWithoutId(authorDtoWithoutId)).thenReturn(authorForSave);
+        when(authorMapper.toDto(authorForSave)).thenReturn(savedAuthorDtoWithId);
 
-        AuthorDto result = authorService.create(authorDtoForSave);
+        AuthorDtoWithId result = authorService.create(authorDtoWithoutId);
 
-        assertEquals(savedAuthorDto, result);
+        assertEquals(savedAuthorDtoWithId, result);
 
     }
 
@@ -64,14 +65,14 @@ public class AuthorServiceTest {
         author.setId(id);
         author.setName(name);
 
-        AuthorDto authorDto = new AuthorDto(id, name);
+        AuthorDtoWithId authorDtoWithId = new AuthorDtoWithId(id, name);
 
         when(authorRepository.findById(id)).thenReturn(Optional.of(author));
-        when(authorMapper.toDto(author)).thenReturn(authorDto);
+        when(authorMapper.toDto(author)).thenReturn(authorDtoWithId);
 
-        AuthorDto result = authorService.read(id);
+        AuthorDtoWithId result = authorService.read(id);
 
-        assertEquals(authorDto, result);
+        assertEquals(authorDtoWithId, result);
     }
 
     @Test
@@ -97,30 +98,30 @@ public class AuthorServiceTest {
         authors.add(author1);
         authors.add(author2);
 
-        AuthorDto authorDto1 = new AuthorDto(1L, "test1");
-        AuthorDto authorDto2 = new AuthorDto(2L, "test2");
+        AuthorDtoWithId authorDtoWithId1 = new AuthorDtoWithId(1L, "test1");
+        AuthorDtoWithId authorDtoWithId2 = new AuthorDtoWithId(2L, "test2");
 
-        List<AuthorDto> authorDtos = new ArrayList<>();
-        authorDtos.add(authorDto1);
-        authorDtos.add(authorDto2);
+        List<AuthorDtoWithId> authorDtoWithIds = new ArrayList<>();
+        authorDtoWithIds.add(authorDtoWithId1);
+        authorDtoWithIds.add(authorDtoWithId2);
 
         when(authorRepository.findAll()).thenReturn(authors);
-        when(authorMapper.toDto(author1)).thenReturn(authorDto1);
-        when(authorMapper.toDto(author2)).thenReturn(authorDto2);
+        when(authorMapper.toDto(author1)).thenReturn(authorDtoWithId1);
+        when(authorMapper.toDto(author2)).thenReturn(authorDtoWithId2);
 
-        List <AuthorDto> result = authorService.readAll();
-        assertEquals(authorDtos, result);
+        List <AuthorDtoWithId> result = authorService.readAll();
+        assertEquals(authorDtoWithIds, result);
     }
 
     @Test
     void readAllAuthors_whenAuthorNotExists_thenReturnEmptyList() {
         List<Author> authors = new ArrayList<>();
-        List<AuthorDto> authorDtos = new ArrayList<>();
+        List<AuthorDtoWithId> authorDtoWithIds = new ArrayList<>();
         when(authorRepository.findAll()).thenReturn(authors);
 
-        List <AuthorDto> result = authorService.readAll();
+        List <AuthorDtoWithId> result = authorService.readAll();
 
-        assertEquals(authorDtos, result);
+        assertEquals(authorDtoWithIds, result);
     }
 
     @Test
@@ -137,14 +138,14 @@ public class AuthorServiceTest {
         authorForUpdate.setId(id);
         authorForUpdate.setName(newName);
 
-        AuthorDto authorDtoForUpdate = new AuthorDto(id, newName);
+        AuthorDtoWithId authorDtoWithIdForUpdate = new AuthorDtoWithId(id, newName);
 
         when(authorRepository.findById(id)).thenReturn(Optional.of(author));
-        when(authorMapper.toEntity(authorDtoForUpdate)).thenReturn(authorForUpdate);
-        when(authorMapper.toDto(authorForUpdate)).thenReturn(authorDtoForUpdate);
+        when(authorMapper.toEntity(authorDtoWithIdForUpdate)).thenReturn(authorForUpdate);
+        when(authorMapper.toDto(authorForUpdate)).thenReturn(authorDtoWithIdForUpdate);
 
-        AuthorDto result = authorService.update(authorDtoForUpdate);
-        assertEquals(authorDtoForUpdate, result);
+        AuthorDtoWithId result = authorService.update(authorDtoWithIdForUpdate);
+        assertEquals(authorDtoWithIdForUpdate, result);
     }
 
     @Test
@@ -152,12 +153,12 @@ public class AuthorServiceTest {
         Long id = 1L;
         String newName = "newName";
 
-        AuthorDto authorDtoForUpdate = new AuthorDto(id, newName);
+        AuthorDtoWithId authorDtoWithIdForUpdate = new AuthorDtoWithId(id, newName);
 
         when(authorRepository.findById(id)).thenReturn(Optional.empty());
 
 
-        assertThrows(EntityNotFoundException.class, () -> authorService.update(authorDtoForUpdate));
+        assertThrows(EntityNotFoundException.class, () -> authorService.update(authorDtoWithIdForUpdate));
     }
 
     @Test
@@ -193,13 +194,13 @@ public class AuthorServiceTest {
         author.setId(id);
         author.setName(name);
 
-        AuthorDto foundAuthorDto = new AuthorDto(id, name);
+        AuthorDtoWithId foundAuthorDtoWithId = new AuthorDtoWithId(id, name);
 
         when(authorRepository.findByName(name)).thenReturn(author);
-        when(authorMapper.toDto(author)).thenReturn(foundAuthorDto);
+        when(authorMapper.toDto(author)).thenReturn(foundAuthorDtoWithId);
 
-        AuthorDto result = authorService.findByName(name);
-        assertEquals(foundAuthorDto, result);
+        AuthorDtoWithId result = authorService.findByName(name);
+        assertEquals(foundAuthorDtoWithId, result);
     }
 
 }

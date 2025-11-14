@@ -1,6 +1,7 @@
 package com.meshakin.unit.service;
 
-import com.meshakin.dto.GenreDto;
+import com.meshakin.dto.id.GenreDtoWithId;
+import com.meshakin.dto.without.id.GenreDtoWithoutId;
 import com.meshakin.entity.Genre;
 import com.meshakin.mapper.GenreMapper;
 import com.meshakin.repository.GenreRepository;
@@ -43,16 +44,16 @@ public class GenreServiceTest {
         savedGenre.setId(id);
         savedGenre.setName(name);
 
-        GenreDto genreDtoForSave = new GenreDto(null, name);
-        GenreDto savedGenreDto = new GenreDto(id, name);
+        GenreDtoWithoutId genreDtoWithoutId = new GenreDtoWithoutId(name);
+        GenreDtoWithId savedGenreDtoWithId = new GenreDtoWithId(id, name);
 
         when(genreRepository.save(genreForSave)).thenReturn(genreForSave);
-        when(genreMapper.toEntity(genreDtoForSave)).thenReturn(genreForSave);
-        when(genreMapper.toDto(genreForSave)).thenReturn(savedGenreDto);
+        when(genreMapper.toEntityWithoutId(genreDtoWithoutId)).thenReturn(genreForSave);
+        when(genreMapper.toDto(genreForSave)).thenReturn(savedGenreDtoWithId);
 
-        GenreDto result = genreService.create(genreDtoForSave);
+        GenreDtoWithId result = genreService.create(genreDtoWithoutId);
 
-        assertEquals(savedGenreDto, result);
+        assertEquals(savedGenreDtoWithId, result);
 
     }
 
@@ -65,14 +66,14 @@ public class GenreServiceTest {
         genre.setId(id);
         genre.setName(name);
 
-        GenreDto genreDto = new GenreDto(id, name);
+        GenreDtoWithId genreDtoWithId = new GenreDtoWithId(id, name);
 
         when(genreRepository.findById(id)).thenReturn(Optional.of(genre));
-        when(genreMapper.toDto(genre)).thenReturn(genreDto);
+        when(genreMapper.toDto(genre)).thenReturn(genreDtoWithId);
 
-        GenreDto result = genreService.read(id);
+        GenreDtoWithId result = genreService.read(id);
 
-        assertEquals(genreDto, result);
+        assertEquals(genreDtoWithId, result);
     }
 
     @Test
@@ -98,30 +99,30 @@ public class GenreServiceTest {
         genres.add(genre1);
         genres.add(genre2);
 
-        GenreDto genreDto1 = new GenreDto(1L, "test1");
-        GenreDto genreDto2 = new GenreDto(2L, "test2");
+        GenreDtoWithId genreDtoWithId1 = new GenreDtoWithId(1L, "test1");
+        GenreDtoWithId genreDtoWithId2 = new GenreDtoWithId(2L, "test2");
 
-        List<GenreDto> genreDtos = new ArrayList<>();
-        genreDtos.add(genreDto1);
-        genreDtos.add(genreDto2);
+        List<GenreDtoWithId> genreDtoWithIds = new ArrayList<>();
+        genreDtoWithIds.add(genreDtoWithId1);
+        genreDtoWithIds.add(genreDtoWithId2);
 
         when(genreRepository.findAll()).thenReturn(genres);
-        when(genreMapper.toDto(genre1)).thenReturn(genreDto1);
-        when(genreMapper.toDto(genre2)).thenReturn(genreDto2);
+        when(genreMapper.toDto(genre1)).thenReturn(genreDtoWithId1);
+        when(genreMapper.toDto(genre2)).thenReturn(genreDtoWithId2);
 
-        List <GenreDto> result = genreService.readAll();
-        assertEquals(genreDtos, result);
+        List <GenreDtoWithId> result = genreService.readAll();
+        assertEquals(genreDtoWithIds, result);
     }
 
     @Test
     void readAllGenres_whenGenreNotExists_thenReturnEmptyList() {
         List<Genre> genres = new ArrayList<>();
-        List<GenreDto> genreDtos = new ArrayList<>();
+        List<GenreDtoWithId> genreDtoWithIds = new ArrayList<>();
         when(genreRepository.findAll()).thenReturn(genres);
 
-        List <GenreDto> result = genreService.readAll();
+        List <GenreDtoWithId> result = genreService.readAll();
 
-        assertEquals(genreDtos, result);
+        assertEquals(genreDtoWithIds, result);
     }
 
     @Test
@@ -138,14 +139,14 @@ public class GenreServiceTest {
         genreForUpdate.setId(id);
         genreForUpdate.setName(newName);
 
-        GenreDto genreDtoForUpdate = new GenreDto(id, newName);
+        GenreDtoWithId genreDtoWithIdForUpdate = new GenreDtoWithId(id, newName);
 
         when(genreRepository.findById(id)).thenReturn(Optional.of(genre));
-        when(genreMapper.toEntity(genreDtoForUpdate)).thenReturn(genreForUpdate);
-        when(genreMapper.toDto(genreForUpdate)).thenReturn(genreDtoForUpdate);
+        when(genreMapper.toEntity(genreDtoWithIdForUpdate)).thenReturn(genreForUpdate);
+        when(genreMapper.toDto(genreForUpdate)).thenReturn(genreDtoWithIdForUpdate);
 
-        GenreDto result = genreService.update(genreDtoForUpdate);
-        assertEquals(genreDtoForUpdate, result);
+        GenreDtoWithId result = genreService.update(genreDtoWithIdForUpdate);
+        assertEquals(genreDtoWithIdForUpdate, result);
     }
 
     @Test
@@ -153,12 +154,12 @@ public class GenreServiceTest {
         Long id = 1L;
         String newName = "newName";
 
-        GenreDto genreDtoForUpdate = new GenreDto(id, newName);
+        GenreDtoWithId genreDtoWithIdForUpdate = new GenreDtoWithId(id, newName);
 
         when(genreRepository.findById(id)).thenReturn(Optional.empty());
 
 
-        assertThrows(EntityNotFoundException.class, () -> genreService.update(genreDtoForUpdate));
+        assertThrows(EntityNotFoundException.class, () -> genreService.update(genreDtoWithIdForUpdate));
     }
 
     @Test
@@ -194,13 +195,13 @@ public class GenreServiceTest {
         genre.setId(id);
         genre.setName(name);
 
-        GenreDto foundGenreDto = new GenreDto(id, name);
+        GenreDtoWithId foundGenreDtoWithId = new GenreDtoWithId(id, name);
 
         when(genreRepository.findByName(name)).thenReturn(genre);
-        when(genreMapper.toDto(genre)).thenReturn(foundGenreDto);
+        when(genreMapper.toDto(genre)).thenReturn(foundGenreDtoWithId);
 
-        GenreDto result = genreService.findByName(name);
-        assertEquals(foundGenreDto, result);
+        GenreDtoWithId result = genreService.findByName(name);
+        assertEquals(foundGenreDtoWithId, result);
     }
 
 }

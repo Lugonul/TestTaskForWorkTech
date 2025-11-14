@@ -1,8 +1,8 @@
 package com.meshakin.controller;
 
-import com.meshakin.dto.BookDto;
+import com.meshakin.dto.id.BookDtoWithId;
+import com.meshakin.dto.without.id.BookDtoWithoutId;
 import com.meshakin.service.BookService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,55 +32,55 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public List<BookDto> getAllBooks() {
+    public List<BookDtoWithId> getAllBooks() {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get all books", username);
-        List<BookDto> books = bookService.readAll();
+        List<BookDtoWithId> books = bookService.readAll();
         log.info("User '{}' got all books", username);
         return books;
     }
 
     @GetMapping("/author")
-    public List<BookDto> getBooksByAuthorName(@RequestParam String authorName) {
+    public List<BookDtoWithId> getBooksByAuthorName(@RequestParam String authorName) {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get books with author: {}", username, authorName);
-        List<BookDto> books = bookService.findByAuthorName(authorName);
+        List<BookDtoWithId> books = bookService.findByAuthorName(authorName);
         log.info("User '{}' got books with author: {}", username, authorName);
         return books;
     }
 
     @GetMapping("/genre")
-    public List<BookDto> getBooksByGenreName(@RequestParam String genreName) {
+    public List<BookDtoWithId> getBooksByGenreName(@RequestParam String genreName) {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get books with genre: {}", username, genreName);
-        List<BookDto> books = bookService.findByGenreName(genreName);
+        List<BookDtoWithId> books = bookService.findByGenreName(genreName);
         log.info("User '{}' got books with genre: {}", username, genreName);
         return books;
     }
 
     @GetMapping("/name")
-    public List<BookDto> getBooksByName(@RequestParam String name) {
+    public List<BookDtoWithId> getBooksByName(@RequestParam String name) {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get books with title: {}", username, name);
-        List<BookDto> books = bookService.findByName(name);
+        List<BookDtoWithId> books = bookService.findByName(name);
         log.info("User '{}' got books with title: {}", username, name);
         return books;
     }
 
     @GetMapping("/{id}")
-    public BookDto getBookById(@PathVariable("id") Long id) {
+    public BookDtoWithId getBookById(@PathVariable("id") Long id) {
         String username = getCurrentUsername();
         log.info("User '{}' is trying to get book with id: {}", username, id);
-        BookDto bookDto = bookService.read(id);
+        BookDtoWithId bookDtoWithId = bookService.read(id);
         log.info("User '{}' got book with id: {}", username, id);
-        return bookDto;
+        return bookDtoWithId;
     }
 
     @PostMapping
-    public ResponseEntity<BookDto> saveBook(@Valid @RequestBody BookDto bookDto) {
+    public ResponseEntity<BookDtoWithId> saveBook(@Valid @RequestBody BookDtoWithoutId bookDtoWithoutId) {
         String username = getCurrentUsername();
-        log.info("User '{}' is trying to create book : {}", username, bookDto.name());
-        BookDto book = bookService.create(bookDto);
+        log.info("User '{}' is trying to create book : {}", username, bookDtoWithoutId.name());
+        BookDtoWithId book = bookService.create(bookDtoWithoutId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -91,11 +91,11 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public BookDto updateBook(@Valid @RequestBody BookDto bookDto) {
+    public BookDtoWithId updateBook(@Valid @RequestBody BookDtoWithId bookDtoWithId) {
         String username = getCurrentUsername();
-        log.info("User '{}' is trying to update book : {}", username, bookDto.name());
-        BookDto updatedDto = bookService.update(bookDto);
-        log.info("User '{}' updated book with id: {}", username, bookDto.id());
+        log.info("User '{}' is trying to update book : {}", username, bookDtoWithId.name());
+        BookDtoWithId updatedDto = bookService.update(bookDtoWithId);
+        log.info("User '{}' updated book with id: {}", username, bookDtoWithId.id());
         return updatedDto;
 
     }

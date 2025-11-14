@@ -1,6 +1,7 @@
 package com.meshakin.mapper;
 
-import com.meshakin.dto.BookDto;
+import com.meshakin.dto.id.BookDtoWithId;
+import com.meshakin.dto.without.id.BookDtoWithoutId;
 import com.meshakin.entity.Author;
 import com.meshakin.entity.Book;
 import com.meshakin.entity.Genre;
@@ -25,21 +26,35 @@ public abstract class BookMapper {
 
     @Mapping(target = "authorName", source = "author.name")
     @Mapping(target = "genreName", source = "genre.name")
-    public abstract BookDto toDto(Book book);
+    public abstract BookDtoWithId toDto(Book book);
 
 
-    @Mapping(target = "author", source = "bookDto", qualifiedByName = "getAuthor")
-    @Mapping(target = "genre", source = "bookDto", qualifiedByName = "getGenre")
-    public abstract Book toEntity(BookDto bookDto);
+    @Mapping(target = "author", source = "bookDtoWithId", qualifiedByName = "getAuthor")
+    @Mapping(target = "genre", source = "bookDtoWithId", qualifiedByName = "getGenre")
+    public abstract Book toEntity(BookDtoWithId bookDtoWithId);
+
+    @Mapping(target = "author", source = "bookDtoWithoutId", qualifiedByName = "getAuthorWithoutId")
+    @Mapping(target = "genre", source = "bookDtoWithoutId", qualifiedByName = "getGenreWithoutId")
+    public abstract Book toEntityWithoutId(BookDtoWithoutId bookDtoWithoutId);
 
 
     @Named("getAuthor")
-    protected Author getAuthor(BookDto dto) {
+    protected Author getAuthor(BookDtoWithId dto) {
         return authorMapper.toEntity(authorService.findByName(dto.authorName()));
     }
 
     @Named("getGenre")
-    protected Genre getGenre(BookDto dto) {
+    protected Genre getGenre(BookDtoWithId dto) {
+        return genreMapper.toEntity(genreService.findByName(dto.genreName()));
+    }
+
+    @Named("getAuthorWithoutId")
+    protected Author getAuthorWithoutId(BookDtoWithoutId dto) {
+        return authorMapper.toEntity(authorService.findByName(dto.authorName()));
+    }
+
+    @Named("getGenreWithoutId")
+    protected Genre getGenreWithoutId(BookDtoWithoutId dto) {
         return genreMapper.toEntity(genreService.findByName(dto.genreName()));
     }
 

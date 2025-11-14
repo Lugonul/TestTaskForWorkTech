@@ -1,6 +1,7 @@
 package com.meshakin.unit.service;
 
-import com.meshakin.dto.BookDto;
+import com.meshakin.dto.id.BookDtoWithId;
+import com.meshakin.dto.without.id.BookDtoWithoutId;
 import com.meshakin.entity.Author;
 import com.meshakin.entity.Book;
 import com.meshakin.entity.Genre;
@@ -58,16 +59,16 @@ public class BookServiceTest {
         savedBook.setAuthor(author);
         savedBook.setGenre(genre);
 
-        BookDto bookDtoForSave = new BookDto(null, name, authorString, genreString);
-        BookDto savedBookDto = new BookDto(id, name, authorString, genreString);
+        BookDtoWithoutId bookDtoWithoutId = new BookDtoWithoutId(name, authorString, genreString);
+        BookDtoWithId savedBookDtoWithId = new BookDtoWithId(id, name, authorString, genreString);
 
         when(bookRepository.save(bookForSave)).thenReturn(bookForSave);
-        when(bookMapper.toEntity(bookDtoForSave)).thenReturn(bookForSave);
-        when(bookMapper.toDto(bookForSave)).thenReturn(savedBookDto);
+        when(bookMapper.toEntityWithoutId(bookDtoWithoutId)).thenReturn(bookForSave);
+        when(bookMapper.toDto(bookForSave)).thenReturn(savedBookDtoWithId);
 
-        BookDto result = bookService.create(bookDtoForSave);
+        BookDtoWithId result = bookService.create(bookDtoWithoutId);
 
-        assertEquals(savedBookDto, result);
+        assertEquals(savedBookDtoWithId, result);
 
     }
 
@@ -89,14 +90,14 @@ public class BookServiceTest {
         book.setName(name);
 
 
-        BookDto bookDto = new BookDto(id, name, authorString, genreString);
+        BookDtoWithId bookDtoWithId = new BookDtoWithId(id, name, authorString, genreString);
 
         when(bookRepository.findById(id)).thenReturn(Optional.of(book));
-        when(bookMapper.toDto(book)).thenReturn(bookDto);
+        when(bookMapper.toDto(book)).thenReturn(bookDtoWithId);
 
-        BookDto result = bookService.read(id);
+        BookDtoWithId result = bookService.read(id);
 
-        assertEquals(bookDto, result);
+        assertEquals(bookDtoWithId, result);
     }
 
     @Test
@@ -134,30 +135,30 @@ public class BookServiceTest {
         books.add(book1);
         books.add(book2);
 
-        BookDto bookDto1 = new BookDto(1L, "test1", authorString, genreString);
-        BookDto bookDto2 = new BookDto(2L, "test2", authorString, genreString);
+        BookDtoWithId bookDtoWithId1 = new BookDtoWithId(1L, "test1", authorString, genreString);
+        BookDtoWithId bookDtoWithId2 = new BookDtoWithId(2L, "test2", authorString, genreString);
 
-        List<BookDto> bookDtos = new ArrayList<>();
-        bookDtos.add(bookDto1);
-        bookDtos.add(bookDto2);
+        List<BookDtoWithId> bookDtoWithIds = new ArrayList<>();
+        bookDtoWithIds.add(bookDtoWithId1);
+        bookDtoWithIds.add(bookDtoWithId2);
 
         when(bookRepository.findAll()).thenReturn(books);
-        when(bookMapper.toDto(book1)).thenReturn(bookDto1);
-        when(bookMapper.toDto(book2)).thenReturn(bookDto2);
+        when(bookMapper.toDto(book1)).thenReturn(bookDtoWithId1);
+        when(bookMapper.toDto(book2)).thenReturn(bookDtoWithId2);
 
-        List<BookDto> result = bookService.readAll();
-        assertEquals(bookDtos, result);
+        List<BookDtoWithId> result = bookService.readAll();
+        assertEquals(bookDtoWithIds, result);
     }
 
     @Test
     void readAllBooks_whenBookNotExists_thenReturnEmptyList() {
         List<Book> books = new ArrayList<>();
-        List<BookDto> bookDtos = new ArrayList<>();
+        List<BookDtoWithId> bookDtoWithIds = new ArrayList<>();
         when(bookRepository.findAll()).thenReturn(books);
 
-        List<BookDto> result = bookService.readAll();
+        List<BookDtoWithId> result = bookService.readAll();
 
-        assertEquals(bookDtos, result);
+        assertEquals(bookDtoWithIds, result);
     }
 
     @Test
@@ -184,14 +185,14 @@ public class BookServiceTest {
         bookForUpdate.setId(id);
         bookForUpdate.setName(newName);
 
-        BookDto bookDtoForUpdate = new BookDto(id, newName, authorString, genreString);
+        BookDtoWithId bookDtoWithIdForUpdate = new BookDtoWithId(id, newName, authorString, genreString);
 
         when(bookRepository.findById(id)).thenReturn(Optional.of(book));
-        when(bookMapper.toEntity(bookDtoForUpdate)).thenReturn(bookForUpdate);
-        when(bookMapper.toDto(bookForUpdate)).thenReturn(bookDtoForUpdate);
+        when(bookMapper.toEntity(bookDtoWithIdForUpdate)).thenReturn(bookForUpdate);
+        when(bookMapper.toDto(bookForUpdate)).thenReturn(bookDtoWithIdForUpdate);
 
-        BookDto result = bookService.update(bookDtoForUpdate);
-        assertEquals(bookDtoForUpdate, result);
+        BookDtoWithId result = bookService.update(bookDtoWithIdForUpdate);
+        assertEquals(bookDtoWithIdForUpdate, result);
     }
 
     @Test
@@ -202,12 +203,12 @@ public class BookServiceTest {
         String genreString = "test";
 
 
-        BookDto bookDtoForUpdate = new BookDto(id, newName, authorString, genreString);
+        BookDtoWithId bookDtoWithIdForUpdate = new BookDtoWithId(id, newName, authorString, genreString);
 
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
 
-        assertThrows(EntityNotFoundException.class, () -> bookService.update(bookDtoForUpdate));
+        assertThrows(EntityNotFoundException.class, () -> bookService.update(bookDtoWithIdForUpdate));
     }
 
     @Test
@@ -282,33 +283,33 @@ public class BookServiceTest {
         secondBook.setAuthor(author);
         secondBook.setGenre(genre);
 
-        BookDto firstBookDto = new BookDto(id, name, authorString, genreString);
-        BookDto secondBookDto = new BookDto(id2, name, authorString, genreString);
+        BookDtoWithId firstBookDtoWithId = new BookDtoWithId(id, name, authorString, genreString);
+        BookDtoWithId secondBookDtoWithId = new BookDtoWithId(id2, name, authorString, genreString);
 
         List<Book> books = new ArrayList<>();
         books.add(firstBook);
         books.add(secondBook);
 
-        List<BookDto> booksDto = new ArrayList<>();
-        booksDto.add(firstBookDto);
-        booksDto.add(secondBookDto);
+        List<BookDtoWithId> booksDto = new ArrayList<>();
+        booksDto.add(firstBookDtoWithId);
+        booksDto.add(secondBookDtoWithId);
         ;
 
         when(bookRepository.findByName(name)).thenReturn(books);
-        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDto);
-        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDto);
+        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDtoWithId);
+        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDtoWithId);
 
-        List<BookDto> result = bookService.findByName(name);
+        List<BookDtoWithId> result = bookService.findByName(name);
         assertEquals(booksDto, result);
     }
 
     @Test
     void findBookByBookName_whenBooksDoesNotExists_shouldReturnEmptyList() {
         List<Book> books = new ArrayList<>();
-        List<BookDto> booksDto = new ArrayList<>();
+        List<BookDtoWithId> booksDto = new ArrayList<>();
         when(bookRepository.findByName("test")).thenReturn(books);
 
-        List<BookDto> result = bookService.findByName("test");
+        List<BookDtoWithId> result = bookService.findByName("test");
 
         assertEquals(booksDto, result);
     }
@@ -339,33 +340,33 @@ public class BookServiceTest {
         secondBook.setAuthor(author);
         secondBook.setGenre(genre);
 
-        BookDto firstBookDto = new BookDto(id, name, authorString, genreString);
-        BookDto secondBookDto = new BookDto(id2, name, authorString, genreString);
+        BookDtoWithId firstBookDtoWithId = new BookDtoWithId(id, name, authorString, genreString);
+        BookDtoWithId secondBookDtoWithId = new BookDtoWithId(id2, name, authorString, genreString);
 
         List<Book> books = new ArrayList<>();
         books.add(firstBook);
         books.add(secondBook);
 
-        List<BookDto> booksDto = new ArrayList<>();
-        booksDto.add(firstBookDto);
-        booksDto.add(secondBookDto);
+        List<BookDtoWithId> booksDto = new ArrayList<>();
+        booksDto.add(firstBookDtoWithId);
+        booksDto.add(secondBookDtoWithId);
 
         when(bookRepository.findByAuthorName(authorString)).thenReturn(books);
-        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDto);
-        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDto);
+        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDtoWithId);
+        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDtoWithId);
 
 
-        List<BookDto> result = bookService.findByAuthorName(authorString);
+        List<BookDtoWithId> result = bookService.findByAuthorName(authorString);
         assertEquals(booksDto, result);
     }
 
     @Test
     void findBookByBookAuthor_whenAuthorDoesNotExists_shouldReturnEmptyList() {
         List<Book> books = new ArrayList<>();
-        List<BookDto> booksDto = new ArrayList<>();
+        List<BookDtoWithId> booksDto = new ArrayList<>();
         when(bookRepository.findByAuthorName("test")).thenReturn(books);
 
-        List<BookDto> result = bookService.findByAuthorName("test");
+        List<BookDtoWithId> result = bookService.findByAuthorName("test");
 
         assertEquals(booksDto, result);
     }
@@ -396,33 +397,33 @@ public class BookServiceTest {
         secondBook.setAuthor(author);
         secondBook.setGenre(genre);
 
-        BookDto firstBookDto = new BookDto(id, name, authorString, genreString);
-        BookDto secondBookDto = new BookDto(id2, name, authorString, genreString);
+        BookDtoWithId firstBookDtoWithId = new BookDtoWithId(id, name, authorString, genreString);
+        BookDtoWithId secondBookDtoWithId = new BookDtoWithId(id2, name, authorString, genreString);
 
         List<Book> books = new ArrayList<>();
         books.add(firstBook);
         books.add(secondBook);
 
-        List<BookDto> booksDto = new ArrayList<>();
-        booksDto.add(firstBookDto);
-        booksDto.add(secondBookDto);
+        List<BookDtoWithId> booksDto = new ArrayList<>();
+        booksDto.add(firstBookDtoWithId);
+        booksDto.add(secondBookDtoWithId);
 
         when(bookRepository.findByGenreName(genreString)).thenReturn(books);
-        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDto);
-        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDto);
+        when(bookMapper.toDto(firstBook)).thenReturn(firstBookDtoWithId);
+        when(bookMapper.toDto(secondBook)).thenReturn(secondBookDtoWithId);
 
 
-        List<BookDto> result = bookService.findByGenreName(genreString);
+        List<BookDtoWithId> result = bookService.findByGenreName(genreString);
         assertEquals(booksDto, result);
     }
 
     @Test
     void findBookByBookGenre_whenGenreDoesNotExists_shouldReturnEmptyList() {
         List<Book> books = new ArrayList<>();
-        List<BookDto> booksDto = new ArrayList<>();
+        List<BookDtoWithId> booksDto = new ArrayList<>();
         when(bookRepository.findByGenreName("test")).thenReturn(books);
 
-        List<BookDto> result = bookService.findByGenreName("test");
+        List<BookDtoWithId> result = bookService.findByGenreName("test");
 
         assertEquals(booksDto, result);
     }

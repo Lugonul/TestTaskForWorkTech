@@ -1,13 +1,9 @@
 package com.meshakin.service;
 
-import com.meshakin.dto.BookDto;
-import com.meshakin.entity.Author;
+import com.meshakin.dto.id.BookDtoWithId;
+import com.meshakin.dto.without.id.BookDtoWithoutId;
 import com.meshakin.entity.Book;
-import com.meshakin.entity.Genre;
-import com.meshakin.mapper.AuthorMapper;
 import com.meshakin.mapper.BookMapper;
-import com.meshakin.mapper.GenreMapper;
-import com.meshakin.repository.AuthorRepository;
 import com.meshakin.repository.BookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,16 +22,16 @@ public class BookService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public BookDto create(BookDto BookDto) {
-        Book book = bookMapper.toEntity(BookDto);
+    public BookDtoWithId create(BookDtoWithoutId bookDtoWithoutId) {
+        Book book = bookMapper.toEntityWithoutId(bookDtoWithoutId);
         Book saved = bookRepository.save(book);
         return bookMapper.toDto(saved);
     }
 
     @Transactional(readOnly = true)
-    public BookDto read(Long id) {
+    public BookDtoWithId read(Long id) {
 
-        BookDto book = bookRepository.findById(id)
+        BookDtoWithId book = bookRepository.findById(id)
                 .map(bookMapper::toDto)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -44,17 +39,17 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookDto> readAll() {
+    public List<BookDtoWithId> readAll() {
         return bookRepository.findAll().stream()
                 .map(bookMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public BookDto update(BookDto bookDto) {
-        Book book = bookRepository.findById(bookDto.id()).orElseThrow(EntityNotFoundException::new);
+    public BookDtoWithId update(BookDtoWithId bookDtoWithId) {
+        Book book = bookRepository.findById(bookDtoWithId.id()).orElseThrow(EntityNotFoundException::new);
 
-        book = bookMapper.toEntity(bookDto);
+        book = bookMapper.toEntity(bookDtoWithId);
         bookRepository.flush();
 
         return bookMapper.toDto(book);
@@ -69,21 +64,21 @@ public class BookService {
     }
 
     @Transactional
-    public List<BookDto> findByAuthorName(String authorName) {
+    public List<BookDtoWithId> findByAuthorName(String authorName) {
         return bookRepository.findByAuthorName(authorName).stream()
                 .map(bookMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<BookDto> findByGenreName(String genreName) {
+    public List<BookDtoWithId> findByGenreName(String genreName) {
         return bookRepository.findByGenreName(genreName).stream()
                 .map(bookMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<BookDto> findByName(String name) {
+    public List<BookDtoWithId> findByName(String name) {
         return bookRepository.findByName(name).stream()
                 .map(bookMapper::toDto)
                 .collect(Collectors.toList());

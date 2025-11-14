@@ -1,8 +1,8 @@
 package com.meshakin.controller;
 
-import com.meshakin.dto.GenreDto;
+import com.meshakin.dto.id.GenreDtoWithId;
+import com.meshakin.dto.without.id.GenreDtoWithoutId;
 import com.meshakin.service.GenreService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +27,18 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public List<GenreDto> getAllGenres() {
+    public List<GenreDtoWithId> getAllGenres() {
         return genreService.readAll();
     }
 
     @GetMapping("/{id}")
-    public GenreDto getGenreById(@PathVariable("id") Long id) {
+    public GenreDtoWithId getGenreById(@PathVariable("id") Long id) {
         return genreService.read(id);
     }
 
     @PostMapping
-    public ResponseEntity<GenreDto> saveGenre(@Valid @RequestBody GenreDto genreDto) {
-        GenreDto genre = genreService.create(genreDto);
+    public ResponseEntity<GenreDtoWithId> saveGenre(@Valid @RequestBody GenreDtoWithoutId genreDtoWithoutIdId) {
+        GenreDtoWithId genre = genreService.create(genreDtoWithoutIdId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -48,8 +48,8 @@ public class GenreController {
     }
 
     @PutMapping("/{id}")
-    public GenreDto updateGenre(@Valid @RequestBody GenreDto genreDto) {
-            GenreDto updatedDto = genreService.update(genreDto);
+    public GenreDtoWithId updateGenre(@Valid @RequestBody GenreDtoWithId genreDtoWithId) {
+            GenreDtoWithId updatedDto = genreService.update(genreDtoWithId);
             return updatedDto;
 
     }

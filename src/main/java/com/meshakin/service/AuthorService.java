@@ -1,6 +1,7 @@
 package com.meshakin.service;
 
-import com.meshakin.dto.AuthorDto;
+import com.meshakin.dto.id.AuthorDtoWithId;
+import com.meshakin.dto.without.id.AuthorDtoWithoutId;
 import com.meshakin.entity.Author;
 import com.meshakin.mapper.AuthorMapper;
 import com.meshakin.repository.AuthorRepository;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,17 +22,17 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
 
     @Transactional
-    public AuthorDto create(AuthorDto AuthorDto) {
-        Author Author = authorMapper.toEntity(AuthorDto);
+    public AuthorDtoWithId create(AuthorDtoWithoutId authorDtoWithoutId) {
+        Author Author = authorMapper.toEntityWithoutId(authorDtoWithoutId);
         Author savedAuthor = authorRepository.save(Author);
 
         return authorMapper.toDto(savedAuthor);
     }
 
     @Transactional(readOnly = true)
-    public AuthorDto read(Long id) {
+    public AuthorDtoWithId read(Long id) {
 
-        AuthorDto author = authorRepository.findById(id)
+        AuthorDtoWithId author = authorRepository.findById(id)
                 .map(authorMapper::toDto)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -40,17 +40,17 @@ public class AuthorService {
     }
 
     @Transactional(readOnly = true)
-    public List<AuthorDto> readAll() {
+    public List<AuthorDtoWithId> readAll() {
         return authorRepository.findAll().stream()
                 .map(authorMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public AuthorDto update(AuthorDto authorDto) {
-        Author author = authorRepository.findById(authorDto.id()).orElseThrow(EntityNotFoundException::new);
+    public AuthorDtoWithId update(AuthorDtoWithId authorDtoWithId) {
+        Author author = authorRepository.findById(authorDtoWithId.id()).orElseThrow(EntityNotFoundException::new);
 
-        author = authorMapper.toEntity(authorDto);
+        author = authorMapper.toEntity(authorDtoWithId);
         authorRepository.flush();
 
         return authorMapper.toDto(author);
@@ -65,7 +65,7 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDto findByName(String name) {
+    public AuthorDtoWithId findByName(String name) {
        Author author = authorRepository.findByName(name);
        if (author == null) {
            throw new EntityNotFoundException();

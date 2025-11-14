@@ -1,6 +1,7 @@
 package com.meshakin.service;
 
-import com.meshakin.dto.GenreDto;
+import com.meshakin.dto.id.GenreDtoWithId;
+import com.meshakin.dto.without.id.GenreDtoWithoutId;
 import com.meshakin.entity.Genre;
 import com.meshakin.mapper.GenreMapper;
 import com.meshakin.repository.GenreRepository;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,17 +22,17 @@ public class GenreService {
     private final GenreRepository genreRepository;
 
     @Transactional
-    public GenreDto create(GenreDto GenreDto) {
-        Genre Genre = genreMapper.toEntity(GenreDto);
+    public GenreDtoWithId create(GenreDtoWithoutId genreDtoWithoutId) {
+        Genre Genre = genreMapper.toEntityWithoutId(genreDtoWithoutId);
         Genre savedGenre = genreRepository.save(Genre);
 
         return genreMapper.toDto(savedGenre);
     }
 
     @Transactional(readOnly = true)
-    public GenreDto read(Long id) {
+    public GenreDtoWithId read(Long id) {
 
-        GenreDto genre = genreRepository.findById(id)
+        GenreDtoWithId genre = genreRepository.findById(id)
                 .map(genreMapper::toDto)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -40,17 +40,17 @@ public class GenreService {
     }
 
     @Transactional(readOnly = true)
-    public List<GenreDto> readAll() {
+    public List<GenreDtoWithId> readAll() {
         return genreRepository.findAll().stream()
                 .map(genreMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public GenreDto update(GenreDto genreDto) {
-        Genre genre = genreRepository.findById(genreDto.id()).orElseThrow(EntityNotFoundException::new);
+    public GenreDtoWithId update(GenreDtoWithId genreDtoWithId) {
+        Genre genre = genreRepository.findById(genreDtoWithId.id()).orElseThrow(EntityNotFoundException::new);
 
-        genre = genreMapper.toEntity(genreDto);
+        genre = genreMapper.toEntity(genreDtoWithId);
         genreRepository.flush();
 
         return genreMapper.toDto(genre);
@@ -65,7 +65,7 @@ public class GenreService {
     }
 
     @Transactional
-    public GenreDto findByName(String name) {
+    public GenreDtoWithId findByName(String name) {
         Genre genre = genreRepository.findByName(name);
         return genreMapper.toDto(genre);
     }

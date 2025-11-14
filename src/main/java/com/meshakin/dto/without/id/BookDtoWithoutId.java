@@ -1,9 +1,8 @@
-package com.meshakin.dto;
+package com.meshakin.dto.without.id;
 
 import jakarta.validation.constraints.NotNull;
 
-public record BookDto (
-        Long id,
+public record BookDtoWithoutId (
         @NotNull
         String name,
         @NotNull

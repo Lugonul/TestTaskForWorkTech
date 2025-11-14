@@ -1,8 +1,8 @@
 package com.meshakin.controller;
 
-import com.meshakin.dto.AuthorDto;
+import com.meshakin.dto.id.AuthorDtoWithId;
+import com.meshakin.dto.without.id.AuthorDtoWithoutId;
 import com.meshakin.service.AuthorService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +27,18 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping
-    public List<AuthorDto> getAllAuthors() {
+    public List<AuthorDtoWithId> getAllAuthors() {
         return authorService.readAll();
     }
 
     @GetMapping("/{id}")
-    public AuthorDto getAuthorById(@PathVariable("id") Long id) {
+    public AuthorDtoWithId getAuthorById(@PathVariable("id") Long id) {
         return authorService.read(id);
     }
 
     @PostMapping
-    public ResponseEntity<AuthorDto> saveAuthor(@Valid @RequestBody AuthorDto authorDto) {
-        AuthorDto author = authorService.create(authorDto);
+    public ResponseEntity<AuthorDtoWithId> saveAuthor(@Valid @RequestBody AuthorDtoWithoutId authorDtoWithoutId) {
+        AuthorDtoWithId author = authorService.create(authorDtoWithoutId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -48,8 +48,8 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
-    public AuthorDto updateAuthor(@Valid @RequestBody AuthorDto authorDto) {
-        AuthorDto updatedDto = authorService.update(authorDto);
+    public AuthorDtoWithId updateAuthor(@Valid @RequestBody AuthorDtoWithId authorDtoWithId) {
+        AuthorDtoWithId updatedDto = authorService.update(authorDtoWithId);
         return updatedDto;
 
     }

@@ -1,13 +1,16 @@
 package com.meshakin.mapper;
 
-import com.meshakin.dto.AuthorDto;
+import com.meshakin.dto.id.AuthorDtoWithId;
+import com.meshakin.dto.without.id.AuthorDtoWithoutId;
 import com.meshakin.entity.Author;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface AuthorMapper{
 
-    AuthorDto toDto(Author author);
+    AuthorDtoWithId toDto(Author author);
 
-    Author toEntity(AuthorDto authorDto);
+    Author toEntity(AuthorDtoWithId authorDtoWithId);
+
+    Author toEntityWithoutId(AuthorDtoWithoutId authorDtoWithoutId);
 }
